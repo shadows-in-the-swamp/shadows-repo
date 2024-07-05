@@ -1,20 +1,29 @@
 
 using System;
+using Utils;
 
 public class ConfineWeakness : Weakness<Confine>
 {
-    public override void ActionatedBy(Player player, Action<string> Callback)
+    public override void ActionatedBy(Player player, Action<string> Callback = null)
     {
-        player.CastSpell<Confine>(Callback + OnActionEvent);
-    }
-
-    protected virtual void OnActionEvent(string eventName)
-    {
-        switch (eventName)
+        bool success = false;
+        void ConfineCallback(string eventName)
         {
-            case "Success":
-                _enemy.SetState(Bounded.Instance);
-                break;
+            switch (eventName)
+            {
+                case "Success":
+                    success = true;
+                    player.ThrowSalt();
+                    _enemy.SetState(Bounded.Instance);
+                    break;
+                case "Done":
+                    if (success)
+                    {
+                        Deactivate();
+                    }
+                    break;
+            }
         }
+        player.CastSpell<Confine>(Callback + ConfineCallback);
     }
 }

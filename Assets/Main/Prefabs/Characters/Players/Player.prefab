@@ -412,6 +412,7 @@ Transform:
   - {fileID: 1684040752399892314}
   - {fileID: 765420613289413450}
   - {fileID: 2571554067401614106}
+  - {fileID: 6698518932746434027}
   m_Father: {fileID: 451785959439094705}
   m_LocalEulerAnglesHint: {x: 4.156817, y: 10.731167, z: 1.7628155}
 --- !u!1 &383789201944775254
@@ -733,8 +734,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2048730878125298254}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalRotation: {x: 0.000000022351742, y: -1.5777218e-29, z: 6.35275e-22, w: 1}
+  m_LocalPosition: {x: 0.00006484985, y: 1.6145096, z: 0.12118149}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2303,6 +2304,10 @@ MonoBehaviour:
   _stepWalkSoundFactor: 1
   _stepRunSoundFactor: 2
   _pathFindingInterval: 0.25
+  _items: []
+  _primaryItems: []
+  _throwSaltParticlesPrefab: {fileID: 0}
+  _trhowSaltPivot: {fileID: 0}
 --- !u!114 &8459486375374972525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2315,12 +2320,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6a6d6be5ff97641bf03adb52ae63db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _faceTo: {fileID: 0}
   _lookAt: {fileID: 8523533188999667226}
   _verticalPivot: {fileID: 2744856455353870348}
   _sensitivity: 2
   _minVerticalAngle: -75
   _maxVerticalAngle: 75
+  _autoAimMinSpeed: 0.1
+  _autoAimMaxSpeed: 1
+  _autoAimMaxSpeedDistance: 1
+  _autoAimMinDistance: 0.1
+  _autoAimSpeedCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _reaction: 0.1
+  _autoFacingUpSpeed: 1
   _spine: {fileID: 0}
   _spineMinVerticalAngle: -50
   _spineMaxVerticalAngle: 50
@@ -2790,6 +2807,37 @@ Transform:
   - {fileID: 4479880633512121142}
   m_Father: {fileID: 6494476628686728343}
   m_LocalEulerAnglesHint: {x: 43.87598, y: -1.8102124, z: -4.492437}
+--- !u!1 &7925201473926264705
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6698518932746434027}
+  m_Layer: 0
+  m_Name: ThrowSaltPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6698518932746434027
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7925201473926264705}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.543247, y: 0.2617755, z: -0.11184156, w: 0.7898404}
+  m_LocalPosition: {x: 0, y: 0.051, z: 0.021}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5780976426790301538}
+  m_LocalEulerAnglesHint: {x: -53.092, y: 62.992, z: -50.157}
 --- !u!1 &7977514295200345571
 GameObject:
   m_ObjectHideFlags: 0

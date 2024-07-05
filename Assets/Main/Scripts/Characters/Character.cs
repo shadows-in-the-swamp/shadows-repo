@@ -40,12 +40,37 @@ public abstract class Character : MonoBehaviour
             return _animator;
         }
     }
-    protected bool _isCrouching = false;
+    public virtual bool IsMoving 
+    {
+        get
+        {
+            if (_animator != null)
+            {
+                return _animator.IsMoving;
+            }
+            return false;
+        }
+    }
+    public virtual bool IsRunning 
+    {
+        get
+        {
+            if (_animator != null)
+            {
+                return _animator.IsRunning;
+            }
+            return false;
+        }
+    }
     public virtual bool IsCrouching 
     {
         get
         {
-            return _isCrouching;
+            if (_animator != null)
+            {
+                return _animator.IsCrouching;
+            }
+            return false;
         }
     }
     #region Pathfinding
@@ -170,7 +195,6 @@ public abstract class Character : MonoBehaviour
     protected virtual void Move(float maxVelocity, float acceleration, bool isRunning = false, bool isCrouching = false)
     {
         _animator.SetMotion(true, isRunning, isCrouching);
-        _isCrouching = isCrouching;
         if (_target == null)
         {
             _animator.SetDirection(_direction.x, _direction.z);
@@ -197,8 +221,7 @@ public abstract class Character : MonoBehaviour
     public virtual void Stay()
     {
         _animator.SetDirection(0, 0);
-        _animator.SetMotion(false, false, false);
-        _isCrouching = false;
+        _animator.SetMotion(false, false, _animator.IsCrouching);
         _agent.isStopped = true;
         _agent.SetDestination(transform.position);
         _body.velocity = Vector3.zero;
@@ -221,31 +244,25 @@ public abstract class Character : MonoBehaviour
 
     public virtual void Crouch()
     {
-        _isCrouching = true;
-        _animator.SetCrouching(_isCrouching);
+        _animator.SetCrouching(true);
     }
 
     public virtual void Stand()
     {
-        _isCrouching = false;
-        _animator.SetCrouching(_isCrouching);
+        _animator.SetCrouching(false);
     }
 
     public virtual bool FaceTo(Vector3 position, float delta)
     {
-        bool isFacingTo = IsFacingTo(position);
+        Vector2 direction = new Vector2(position.x - transform.position.x, position.z - transform.position.z).normalized;
+        Vector2 forward = new Vector2(transform.forward.x, transform.forward.z).normalized;
+        bool isFacingTo = forward == direction;
         if (!isFacingTo)
         {
-            transform.forward = Vector3.Lerp(transform.forward, position - transform.position, delta);
+            Vector2 newForward = Vector2.Lerp(forward, direction, delta);
+            transform.forward = new(newForward.x, transform.forward.y, newForward.y);
         }
         return isFacingTo;
-    }
-    #endregion
-
-    #region Utilities
-    public virtual bool IsFacingTo(Vector3 position)
-    {
-        return transform.forward == (position - transform.position).normalized;
     }
     #endregion
 }

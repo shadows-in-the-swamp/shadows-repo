@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using Utils;
 
-[CreateAssetMenu(menuName = "Items/Spell")]
+[CreateAssetMenu(menuName = "Spells/Confine")]
 public class Confine : Spell
 {
     public override bool CanBeCastedBy(Player player)

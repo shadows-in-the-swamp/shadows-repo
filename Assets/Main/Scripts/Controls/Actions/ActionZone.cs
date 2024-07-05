@@ -1,14 +1,34 @@
 using System;
 using UnityEngine;
 using Utils;
+
+[RequireComponent(typeof(Collider))]
 public abstract class ActionZone : MonoBehaviour
 {
+    [SerializeField] protected InputAxesNames _axisName = InputAxesNames.PrimaryAction;
     [SerializeField] protected string _name;
     [SerializeField] protected string _description;
     [SerializeField] protected string _blockedDescription;
     [SerializeField] protected float _sightDistance = 3f;
     [SerializeField] protected float _requiredDistance = 1f;
-    [SerializeField] protected InputAxesNames _axisName = InputAxesNames.PrimaryAction;
+    [SerializeField] protected bool _hold = false;
+    [SerializeField] protected bool _active = true;
+
+    protected Collider _collider;
+    public virtual bool Hold
+    {
+        get
+        {
+            return _hold;
+        }
+    }
+    public virtual bool Active
+    {
+        get
+        {
+            return _active;
+        }
+    }
     public virtual string Hint
     {
         get
@@ -46,9 +66,36 @@ public abstract class ActionZone : MonoBehaviour
             return _requiredDistance;
         }
     }
-    public abstract void ActionatedBy(Player player, Action<string> Callback);
+
+    protected virtual void Awake()
+    {
+        _collider = GetComponent<Collider>();
+    }
+
+    protected virtual void Start()
+    {
+        _collider.enabled = _active;
+    }
+    public abstract void ActionatedBy(Player player, Action<string> Callback = null);
     public virtual bool CanBeActionatedBy(Player player)
     {
         return true;
+    }
+
+    public virtual void Activate()
+    {
+        _active = true;
+        _collider.enabled = true;
+    }
+
+    public virtual void Deactivate()
+    {
+        _active = false;
+        _collider.enabled = false;
+    }
+
+    public virtual bool BeeingActionatedBy(Player player)
+    {
+        return false;
     }
 }

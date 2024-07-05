@@ -21,9 +21,9 @@ public class Enemy : Character
     [Header("Chasing")]
     [SerializeField] protected float _chaseMinDistance = 2f;
     [Header("Bounded")]
-    [SerializeField] protected GameObject _bounded;
-    [SerializeField] protected ActionZone _weakZone;
     [SerializeField] protected float _boundedMaxTime = 15f;
+    [SerializeField] protected ActionZone _exorcismZone;
+    [SerializeField] protected ActionZone _confineZone;
     protected float _alertTime = 0f;
     protected float _searchTime = 0f;
     protected float _randomMaxIdleTime = 0f;
@@ -291,24 +291,27 @@ public class Enemy : Character
 
     public virtual void ActivateWeakness()
     {
-        _weakZone.gameObject.SetActive(true);
+        _confineZone.gameObject.SetActive(true);
     }
 
     public virtual void DeactivateWeakness()
     {
-        _weakZone.gameObject.SetActive(false);
+        _confineZone.gameObject.SetActive(false);
     }
 
     public virtual void OnBounded()
     {
         _boundedTime = 0f;
-        _bounded.SetActive(true);
+        _exorcismZone.Activate();
+        // _exorcismZone.GetComponent<ParticleSystem>().Play();
+        // _confineZone.Deactivate();
     }
 
     public virtual void OnUnbounded()
     {
         _boundedTime = 0f;
-        _bounded.SetActive(false);
+        _exorcismZone.Deactivate();
+        _confineZone.Activate();
     }
     public virtual bool CheckBounded()
     {

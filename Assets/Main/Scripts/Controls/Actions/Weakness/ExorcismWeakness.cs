@@ -1,10 +1,13 @@
 
 using System;
 using UnityEngine;
+using Utils;
 
+[RequireComponent(typeof(ParticleSystem))]
 public class ExorcismWeakness : Weakness<Exorcism>
 {
-    protected float _maxDuration = 5f;
+    [SerializeField] protected float _maxDuration = 5f;
+    protected ParticleSystem _particles;
     protected float _duration = 0f;
     public override string Hint
     {
@@ -14,17 +17,51 @@ public class ExorcismWeakness : Weakness<Exorcism>
         }
     }
 
-    public override void ActionatedBy(Player player, Action<string> Callback)
+    protected override void Awake()
     {
-        if (_duration < _maxDuration)
+        base.Awake();
+        _particles = GetComponent<ParticleSystem>();
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        if (_active)
+        {
+            _particles.Play();
+        }
+    }
+
+    public override void Activate()
+    {
+        base.Activate();
+        _particles.Play();
+    }
+
+    public override void Deactivate()
+    {
+        base.Deactivate();
+        _particles.Stop();
+    }
+
+    public override void ActionatedBy(Player player, Action<string> Callback = null)
+    {
+        player.CastSpell<Exorcism>(Callback);
+    }
+
+    public override bool BeeingActionatedBy(Player player)
+    {
+        bool beeingActionated = _duration < _maxDuration;
+        if (beeingActionated)
         {
             _duration += Time.deltaTime;
+            return beeingActionated;
         }
         else
         {
             _enemy.gameObject.SetActive(false);
+            return false;
         }
-        Callback("Done");
     }
 
 }

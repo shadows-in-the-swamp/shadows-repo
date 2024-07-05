@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Utils
@@ -5,7 +6,7 @@ namespace Utils
     #region Classes
     public static class ActionsUtils
     {
-        public static void Noop()
+        public static void Noop() 
         {
         }
         public static void Noop1<P>(P _)
@@ -70,7 +71,8 @@ namespace Utils
         IsCrouching,
         IsMoving,
         ActionIndex,
-        Action
+        Action,
+        ActionEnd
     }
     public enum PlayerActionsNames
     {

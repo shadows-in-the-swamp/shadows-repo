@@ -7,6 +7,8 @@ public class Player : Character
 {
     [SerializeField] protected List<Item> _items = new();
     [SerializeField] protected List<PrimaryItem> _primaryItems = new();
+    [SerializeField] protected ParticleSystem _throwSaltParticlesPrefab;
+    [SerializeField] protected Transform _trhowSaltPivot;
     protected bool _grabbed = false;
     public bool IsGrabbed
     {
@@ -24,7 +26,7 @@ public class Player : Character
         }
     }
 
-    public virtual void CastSpell<T>(Action<string> Callback) where T : Spell
+    public virtual void CastSpell<T>(Action<string> Callback = null) where T : Spell
     {
         if (!HasSpell<T>())
         {
@@ -143,4 +145,9 @@ public class Player : Character
         _animator.ToggleLantern();
     }
 
+    public virtual void ThrowSalt()
+    {
+        ParticleSystem throwSaltParticles = Instantiate(_throwSaltParticlesPrefab, _trhowSaltPivot.position, _trhowSaltPivot.rotation);
+        throwSaltParticles.Play();
+    }
 }

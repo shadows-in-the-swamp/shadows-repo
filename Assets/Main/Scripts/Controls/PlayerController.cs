@@ -6,6 +6,7 @@ using Utils;
 [RequireComponent(typeof(Player))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] protected Transform _faceTo;
     #region Editable Properties
     #region Camera
     [Header("Camera")]
@@ -14,11 +15,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] protected float _sensitivity = 2f;
     [SerializeField] protected float _minVerticalAngle = -75f;
     [SerializeField] protected float _maxVerticalAngle = 75f;
+    [SerializeField] protected float _autoAimMinSpeed = 0.1f;
+    [SerializeField] protected float _autoAimMaxSpeed = 1f;
+    [SerializeField] protected float _autoAimMaxSpeedDistance = 1f;
+    [SerializeField] protected float _autoAimMinDistance = 0.1f;
+    [SerializeField] protected AnimationCurve _autoAimSpeedCurve = new();
     #endregion
 
     #region Movement
     [Header("Movement")]
     [SerializeField] protected float _reaction = 0.1f;
+    [SerializeField] protected float _autoFacingUpSpeed = 1f;
     #endregion
 
     #region Spine
@@ -43,11 +50,12 @@ public class PlayerController : MonoBehaviour
     protected Camera _camera;
     protected ActionZone _aimedAction;
     protected ActionZone _engagedAction;
-    protected Action StateUpdate;
-    protected Action StateFixedUpdate;
+    protected Action StateFixedUpdate = ActionsUtils.Noop;
+    protected Action StateUpdate = ActionsUtils.Noop;
+    protected Action StateLateUpdate = ActionsUtils.Noop;
     protected float _verticalRotation = 0f;
     protected float _spineVerticalRotation = 0f;
-    protected bool _isActionating = false;
+    protected bool _successAction = false;
     #endregion
 
     #region Lifecycle Handlers
@@ -55,7 +63,6 @@ public class PlayerController : MonoBehaviour
     {
         _player = GetComponent<Player>();
         _camera = GetComponentInChildren<Camera>();
-        ToPlayerControlState();
     }
 
     protected virtual void Start()
@@ -63,21 +70,26 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         StartCoroutine(ActionRoutine());
+        ToPlayerControlState();
     }
-
+    protected virtual void FixedUpdate()
+    {
+        StateFixedUpdate();
+    }
     protected virtual void Update()
     {
         StateUpdate();
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void LateUpdate()
     {
-        StateFixedUpdate();
+        StateLateUpdate();
     }
+
     #endregion
     
     #region Artificial Updates
-    protected virtual void CameraUpdate()
+    protected virtual void CameraLateUpdate()
     {
         float inputX = Input.GetAxis(InputAxesNames.CameraX.ToString()) * _sensitivity;
         float inputY = Input.GetAxis(InputAxesNames.CameraY.ToString()) * _sensitivity;
@@ -106,7 +118,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_aimedAction != null)
         {
-            if (_aimedAction.CanBeActionatedBy(_player))
+            if (_aimedAction.Active && _aimedAction.CanBeActionatedBy(_player))
             {
                 UIController.Instance.SetHint(_aimedAction.Hint);
                 if (Input.GetAxisRaw(_aimedAction.AxisName.ToString()) != 0)
@@ -174,6 +186,14 @@ public class PlayerController : MonoBehaviour
             _player.Stand();
         }
     }
+
+    protected virtual bool AutoAimTo(Vector3 position, float delta)
+    {
+        Vector3 direction = (position - _camera.transform.position).normalized;
+        float sqrDistance = (_camera.transform.forward - direction).sqrMagnitude;
+        _camera.transform.forward = Vector3.Lerp(_camera.transform.forward, direction, delta).normalized;
+        return sqrDistance <= MathF.Pow(_autoAimMinDistance, 2);
+    }
     
     #region State Methods
     protected virtual void PlayerControlUpdate()
@@ -182,7 +202,6 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        CameraUpdate();
         AimUpdate();
         CommandsUpdate();
 
@@ -204,16 +223,22 @@ public class PlayerController : MonoBehaviour
         CrouchingFixedUpdate();
         if (!(_engagedAction != null && _engagedAction.CanBeActionatedBy(_player)))
         {
-            _player.Stay();
             ToPlayerControlState();
             return;
         }
-        _camera.transform.LookAt(_engagedAction.transform.position);
-        _player.FaceTo(_engagedAction.transform.position, Time.fixedDeltaTime);
         if ((_engagedAction.transform.position - transform.position).sqrMagnitude <= Mathf.Pow(_engagedAction.RequiredDistance, 2))
         {
-            _engagedAction.ActionatedBy(_player, OnActionEvent);
+            void ActionCallback(string eventName)
+            {
+                switch (eventName)
+                {
+                    case "Success":
+                        _successAction = true;
+                        break;
+                }
+            }
             _player.Stay();
+            _engagedAction.ActionatedBy(_player, ActionCallback);
             ToActionatingState();
             return;
         }
@@ -227,18 +252,55 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    protected virtual void ActionatingUpdate()
+    protected virtual void ActionatingFixedUpdate()
     {
-        if (_engagedAction?.gameObject.activeSelf == true)
+        CrouchingFixedUpdate();
+        bool canBeActionated = _engagedAction.CanBeActionatedBy(_player);
+        if (
+            !_player.Animator.IsActionating ||
+            _engagedAction == null ||
+            !_engagedAction.Active ||
+            (!canBeActionated && !_successAction) ||
+            !canBeActionated
+            )
         {
-            _camera.transform.LookAt(_engagedAction.transform.position);
-            // _spine.forward = _engagedAction.transform.position - _spine.transform.position;
-        }
-        if (!_isActionating)
-        {
-            _player.Stay();
             ToPlayerControlState();
             return;
+        }
+        if (_engagedAction != null)
+        {
+            if (_engagedAction.Hold)
+            {
+                if (Input.GetAxisRaw(_engagedAction.AxisName.ToString()) == 0 || !_engagedAction.BeeingActionatedBy(_player))
+                {
+                    ToPlayerControlState();
+                    return;
+                }
+            }
+        } 
+    }
+
+    protected virtual void ActionatingLateUpdate()
+    {
+        if (_engagedAction == null)
+        {
+            return;
+        }
+        _player.FaceTo(_engagedAction.transform.position, Time.deltaTime * _autoFacingUpSpeed);
+        Vector3 direction = (_engagedAction.transform.position - _camera.transform.position).normalized;
+        float maxSpeedDistance = Mathf.Pow(_autoAimMaxSpeedDistance, 2);
+        float currentDistance = 1 - Mathf.Clamp((direction - _camera.transform.forward).magnitude / _autoAimMaxSpeedDistance, 0, 1);
+        float speed = Mathf.Clamp(_autoAimSpeedCurve.Evaluate(currentDistance) * _autoAimMaxSpeed, _autoAimMinSpeed, _autoAimMaxSpeed);
+        if (AutoAimTo(_engagedAction.transform.position, Time.deltaTime * speed))
+        {
+            StateLateUpdate = () =>
+            {
+                if (_engagedAction == null)
+                {
+                    return;
+                }
+                _camera.transform.LookAt(_engagedAction.transform.position);
+            };
         }
     }
     #endregion
@@ -270,38 +332,32 @@ public class PlayerController : MonoBehaviour
     #region State Transitions
     protected void ToPlayerControlState()
     {
+        _player.Animator.EndAction(true);
+        _player.Stay();
         _engagedAction = null;
-        _isActionating = false;
+        _successAction = false;
         _player.SetTarget(null);
         StateUpdate = PlayerControlUpdate;
         StateFixedUpdate = PlayerControlFixedUpdate;
+        StateLateUpdate = CameraLateUpdate;
     }
 
     protected void ToGoingToActionState()
     {
+        _successAction = false;
         _engagedAction = _aimedAction;
         _player.SetTarget(_engagedAction.transform);
         StateUpdate = ActionsUtils.Noop;
         StateFixedUpdate = GoingToActionFixedUpdate;
+        StateLateUpdate = ActionatingLateUpdate;
     }
 
     protected void ToActionatingState()
     {
-        _isActionating = true;
-        StateUpdate = ActionatingUpdate;
-        StateFixedUpdate = ActionsUtils.Noop;
-    }
-    #endregion
-
-    #region Event Listeners
-    protected virtual void OnActionEvent(string eventName)
-    {
-        switch (eventName)
-        {
-            case "Done":
-                _isActionating = false;
-                break;
-        }
+        _successAction = false;
+        StateFixedUpdate = ActionatingFixedUpdate;
+        StateUpdate = ActionsUtils.Noop;
+        StateLateUpdate = ActionatingLateUpdate;
     }
     #endregion
 }

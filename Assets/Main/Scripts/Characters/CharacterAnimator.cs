@@ -19,22 +19,58 @@ public class CharacterAnimator : MonoBehaviour
 
     #region Inner Properties
     protected Animator _animator;
+    protected Vector2 _direction;
     public event Action<string, string> OnStep;
     public event Action<string> OnActionKeyEvent;
-    protected bool _equippedLantern = false;
     protected float _stepsTimer = 0;
     protected float _leftFootStepsTimer = 0;
     protected float _rightFootStepsTimer = 0;
+    protected int _actionIndex = 0;
+    protected bool _isMoving = false;
+    public virtual bool IsMoving
+    {
+        get
+        {
+            return _isMoving;
+        }
+    }
+    protected bool _isRunning = false;
+    public virtual bool IsRunning
+    {
+        get
+        {
+            return _isRunning;
+        }
+    }
+    protected bool _isCrouching = false;
+    public virtual bool IsCrouching 
+    {
+        get
+        {
+            return _isCrouching;
+        }
+    }
+    protected bool _equippedLantern = false;
+    protected bool _wasActionating = false;
+    public bool IsActionating
+    {
+        get
+        {
+            return _actionIndex > 0;
+        }
+    }
     #endregion
 
     #region Lifecycle Handlers
     protected virtual void Awake()
     {
         _animator = GetComponent<Animator>();
+        OnActionKeyEvent = ActionsUtils.Noop1;
     }
 
     protected virtual void Update() 
     {
+        ParametersUpdate();
         LanternUpdate();
         StepsCooldownUpdate();
     }
@@ -78,6 +114,26 @@ public class CharacterAnimator : MonoBehaviour
             _rightFootStepsTimer -= Time.deltaTime;
         }
     }
+
+    protected virtual void ParametersUpdate()
+    {
+        _animator.SetFloat(AnimatorParametersNames.DirectionX.ToString(), _direction.x);
+        _animator.SetFloat(AnimatorParametersNames.DirectionY.ToString(), _direction.y);
+        _animator.SetBool(AnimatorParametersNames.IsCrouching.ToString(), _isCrouching);
+        _animator.SetBool(AnimatorParametersNames.IsMoving.ToString(), _isMoving);
+        _animator.SetBool(AnimatorParametersNames.IsRunning.ToString(), _isRunning);
+
+        _animator.SetFloat(AnimatorParametersNames.ActionIndex.ToString(), _actionIndex);
+        if (_actionIndex > 0 && !_wasActionating)
+        {
+            _animator.SetTrigger(AnimatorParametersNames.Action.ToString());
+        }
+        else if (_actionIndex == 0 && _wasActionating)
+        {
+            _animator.SetTrigger(AnimatorParametersNames.ActionEnd.ToString());
+        }
+        _wasActionating = _actionIndex > 0;
+    }
     #endregion
 
     #region KeyEvents Listeners
@@ -114,6 +170,10 @@ public class CharacterAnimator : MonoBehaviour
     public virtual void ActionKeyEvent(string eventName)
     {
         OnActionKeyEvent(eventName);
+        if (eventName == "Done")
+        {
+            EndAction();
+        }
     }
     #endregion
 
@@ -136,13 +196,12 @@ public class CharacterAnimator : MonoBehaviour
     #region Animator Parameters
     public virtual void SetCrouching(bool isCrouching)
     {
-        _animator.SetBool(AnimatorParametersNames.IsCrouching.ToString(), isCrouching);
+        _isCrouching = isCrouching;
     }
 
     public virtual void SetDirection(float x, float y)
     {
-        _animator.SetFloat(AnimatorParametersNames.DirectionX.ToString(), x);
-        _animator.SetFloat(AnimatorParametersNames.DirectionY.ToString(), y);
+        _direction = new Vector2(x,y);
     }
 
     public virtual void SetMotion(bool isMoving, bool isRunning = false, bool isCrouching = false)
@@ -151,9 +210,9 @@ public class CharacterAnimator : MonoBehaviour
         {
             isRunning = false;
         }
-        _animator.SetBool(AnimatorParametersNames.IsMoving.ToString(), isMoving);
-        _animator.SetBool(AnimatorParametersNames.IsRunning.ToString(), isRunning);
-        _animator.SetBool(AnimatorParametersNames.IsCrouching.ToString(), isCrouching);
+        _isMoving = isMoving;
+        _isRunning = isRunning;
+        _isCrouching = isCrouching;
     }
 
     public virtual void SetDying()
@@ -161,12 +220,29 @@ public class CharacterAnimator : MonoBehaviour
         _animator.SetTrigger("Die");
     }
 
-    public virtual void TriggerAction(int actionIndex, Action<string> Callback)
+    public virtual void TriggerAction(int actionIndex, Action<string> Callback = null)
     {
-        OnActionKeyEvent = null;
-        OnActionKeyEvent += Callback;
-        _animator.SetFloat(AnimatorParametersNames.ActionIndex.ToString(), actionIndex);
-        _animator.SetTrigger(AnimatorParametersNames.Action.ToString());
+        if (actionIndex > 0)
+        {
+            EndAction(true);
+            _actionIndex = actionIndex;
+            OnActionKeyEvent = Callback ?? ActionsUtils.Noop1;
+        }
+    }
+
+    public virtual void EndAction(bool interrupt = false)
+    {
+        if (_actionIndex == 0)
+        {
+            return;
+        }
+        if (interrupt)
+        {
+            OnActionKeyEvent("Interrupted");
+        }
+        OnActionKeyEvent("Done");
+        OnActionKeyEvent = ActionsUtils.Noop1;
+        _actionIndex = 0;
     }
     #endregion
 }

@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 987fbf666233c274297a36f176bc29de, type: 3}
-  m_Name: SpellsBook
+  m_Script: {fileID: 11500000, guid: 6fea4814492683f4281b124f9fc7d33e, type: 3}
+  m_Name: Exorcism Page
   m_EditorClassIdentifier: 
-  _pages:
-  - {fileID: 11400000, guid: 10ee7f5f70835e04d8cf6b6d5304c90d, type: 2}
-  - {fileID: 11400000, guid: 496e9ef4e4e453d4681380afac7e0824, type: 2}
+  _spell: {fileID: 11400000, guid: 4946fa3d704eee14583dd79fb449d61d, type: 2}
