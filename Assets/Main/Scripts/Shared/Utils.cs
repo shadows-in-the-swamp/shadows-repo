@@ -77,12 +77,14 @@ namespace Utils
     public enum PlayerActionsNames
     {
         Confine = 1,
-        Exorcise
+        Exorcise,
+        Die
     }
 
     public enum EnemyActionsNames
     {
-        Attack = 1
+        Attack = 1,
+        Die
     }
     public enum InputAxesNames
     {

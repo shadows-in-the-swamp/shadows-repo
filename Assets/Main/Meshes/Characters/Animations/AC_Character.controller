@@ -62,10 +62,18 @@ BlendTree:
     m_CycleOffset: 0
     m_DirectBlendParameter: DirectionX
     m_Mirror: 0
+  - serializedVersion: 2
+    m_Motion: {fileID: 7400000, guid: 1e0d42a746b127d41ab97eb7e0348af3, type: 2}
+    m_Threshold: 3
+    m_Position: {x: 0, y: 0}
+    m_TimeScale: 1
+    m_CycleOffset: 0
+    m_DirectBlendParameter: DirectionX
+    m_Mirror: 0
   m_BlendParameter: ActionIndex
   m_BlendParameterY: DirectionX
   m_MinThreshold: 1
-  m_MaxThreshold: 2
+  m_MaxThreshold: 3
   m_UseAutomaticThresholds: 0
   m_NormalizedBlendValues: 0
   m_BlendType: 0
@@ -1057,9 +1065,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.10000008
+  m_TransitionDuration: 0.038915496
   m_TransitionOffset: 0
-  m_ExitTime: 1
+  m_ExitTime: 0.8745079
   m_HasExitTime: 0
   m_HasFixedDuration: 0
   m_InterruptionSource: 2

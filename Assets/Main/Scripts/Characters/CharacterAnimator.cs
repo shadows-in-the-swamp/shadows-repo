@@ -215,11 +215,6 @@ public class CharacterAnimator : MonoBehaviour
         _isCrouching = isCrouching;
     }
 
-    public virtual void SetDying()
-    {
-        _animator.SetTrigger("Die");
-    }
-
     public virtual void TriggerAction(int actionIndex, Action<string> Callback = null)
     {
         if (actionIndex > 0)

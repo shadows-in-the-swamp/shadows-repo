@@ -91,6 +91,10 @@ public class PlayerController : MonoBehaviour
     #region Artificial Updates
     protected virtual void CameraLateUpdate()
     {
+        if (_player.IsDead)
+        {
+            return;
+        }
         float inputX = Input.GetAxis(InputAxesNames.CameraX.ToString()) * _sensitivity;
         float inputY = Input.GetAxis(InputAxesNames.CameraY.ToString()) * _sensitivity;
 

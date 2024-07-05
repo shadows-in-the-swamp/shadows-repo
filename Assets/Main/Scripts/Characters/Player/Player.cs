@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utils;
 
 public class Player : Character
 {
@@ -137,7 +138,7 @@ public class Player : Character
     public virtual void Killed()
     {
         _dead = true;
-        _animator.SetDying();
+        _animator.TriggerAction((int)PlayerActionsNames.Die);
     }
 
     public virtual void ToggleLantern()
