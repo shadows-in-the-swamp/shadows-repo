@@ -1,0 +1,11 @@
+Model Information:
+* title:	Old book
+* source:	https://sketchfab.com/3d-models/old-book-73db31780eef4940af7ad8af8868d684
+* author:	KIFIR (https://sketchfab.com/kifir)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Old book" (https://sketchfab.com/3d-models/old-book-73db31780eef4940af7ad8af8868d684) by KIFIR (https://sketchfab.com/kifir) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

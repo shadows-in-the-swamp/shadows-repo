@@ -98,5 +98,12 @@ namespace Utils
         PrimaryAction,
         Confine
     }
+    public enum SceneIndexes
+    {
+        MainMenu,
+        Test,
+        Chapter1,
+        Loading
+    }
     #endregion
 }

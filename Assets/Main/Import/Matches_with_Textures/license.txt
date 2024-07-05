@@ -1,0 +1,11 @@
+Model Information:
+* title:	Matches with Textures
+* source:	https://sketchfab.com/3d-models/matches-with-textures-b5128b76afab40fa80c0954ea513aa80
+* author:	ACortes2018 (https://sketchfab.com/ACortes2018)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Matches with Textures" (https://sketchfab.com/3d-models/matches-with-textures-b5128b76afab40fa80c0954ea513aa80) by ACortes2018 (https://sketchfab.com/ACortes2018) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
