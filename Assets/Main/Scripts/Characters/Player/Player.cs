@@ -143,6 +143,10 @@ public class Player : Character
 
     public virtual void ToggleLantern()
     {
+        if (!HasPrimary<Lantern>())
+        {
+            return;
+        }
         _animator.ToggleLantern();
     }
 

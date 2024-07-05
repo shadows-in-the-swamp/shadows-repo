@@ -52,11 +52,12 @@ public class CharacterAnimator : MonoBehaviour
     }
     protected bool _equippedLantern = false;
     protected bool _wasActionating = false;
+    protected bool _isActionating = false;
     public bool IsActionating
     {
         get
         {
-            return _actionIndex > 0;
+            return _isActionating;
         }
     }
     #endregion
@@ -123,16 +124,16 @@ public class CharacterAnimator : MonoBehaviour
         _animator.SetBool(AnimatorParametersNames.IsMoving.ToString(), _isMoving);
         _animator.SetBool(AnimatorParametersNames.IsRunning.ToString(), _isRunning);
 
-        _animator.SetFloat(AnimatorParametersNames.ActionIndex.ToString(), _actionIndex);
-        if (_actionIndex > 0 && !_wasActionating)
+        if (_isActionating && !_wasActionating)
         {
             _animator.SetTrigger(AnimatorParametersNames.Action.ToString());
         }
-        else if (_actionIndex == 0 && _wasActionating)
+        else if (!_isActionating && _wasActionating)
         {
             _animator.SetTrigger(AnimatorParametersNames.ActionEnd.ToString());
         }
-        _wasActionating = _actionIndex > 0;
+        _animator.SetFloat(AnimatorParametersNames.ActionIndex.ToString(), _actionIndex);
+        _wasActionating = _isActionating;
     }
     #endregion
 
@@ -220,8 +221,9 @@ public class CharacterAnimator : MonoBehaviour
         if (actionIndex > 0)
         {
             EndAction(true);
-            _actionIndex = actionIndex;
             OnActionKeyEvent = Callback ?? ActionsUtils.Noop1;
+            _actionIndex = actionIndex;
+            _isActionating = true;
         }
     }
 
@@ -237,7 +239,7 @@ public class CharacterAnimator : MonoBehaviour
         }
         OnActionKeyEvent("Done");
         OnActionKeyEvent = ActionsUtils.Noop1;
-        _actionIndex = 0;
+        _isActionating = false;
     }
     #endregion
 }

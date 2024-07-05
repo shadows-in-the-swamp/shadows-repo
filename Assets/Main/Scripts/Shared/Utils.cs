@@ -76,15 +76,15 @@ namespace Utils
     }
     public enum PlayerActionsNames
     {
-        Confine = 1,
+        Die = 1,
+        Confine,
         Exorcise,
-        Die
     }
 
     public enum EnemyActionsNames
     {
-        Attack = 1,
-        Die
+        Die = 1,
+        Attack,
     }
     public enum InputAxesNames
     {

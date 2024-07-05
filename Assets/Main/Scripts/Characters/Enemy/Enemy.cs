@@ -184,7 +184,7 @@ public class Enemy : Character
         Stay();
         var heardDirection = _lastHeard.transform.position - transform.position;
         heardDirection.y = 0;
-
+        
         transform.LookAt(heardDirection);
         _alertTime += Time.deltaTime;
         return _alertTime >= _alertHeardMaxTime;
@@ -303,8 +303,6 @@ public class Enemy : Character
     {
         _boundedTime = 0f;
         _exorcismZone.Activate();
-        // _exorcismZone.GetComponent<ParticleSystem>().Play();
-        // _confineZone.Deactivate();
     }
 
     public virtual void OnUnbounded()
