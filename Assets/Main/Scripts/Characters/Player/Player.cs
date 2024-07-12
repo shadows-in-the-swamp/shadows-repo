@@ -91,11 +91,11 @@ public class Player : Character
         }
     }
 
-    protected virtual bool HasPrimary<T>() where T : PrimaryItem
+    public virtual bool HasPrimary<T>() where T : PrimaryItem
     {
         return _primaryItems.Any(item => item is T);
     }
-    protected virtual T GetPrimary<T>() where T : PrimaryItem
+    public virtual T GetPrimary<T>() where T : PrimaryItem
     {
         return (T)_primaryItems.ElementAtOrDefault(_primaryItems.FindIndex(item => item is T));
     }

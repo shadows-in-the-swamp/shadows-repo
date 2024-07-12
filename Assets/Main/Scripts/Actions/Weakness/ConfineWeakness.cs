@@ -1,6 +1,4 @@
-
 using System;
-using Utils;
 
 public class ConfineWeakness : Weakness<Confine>
 {

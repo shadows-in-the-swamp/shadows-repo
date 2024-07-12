@@ -1,5 +1,4 @@
 
-
 using UnityEngine;
 
 public class Bounded : EnemyState
@@ -19,6 +18,18 @@ public class Bounded : EnemyState
         {
             enemy.SetState(Alert.Instance);
         }
+    }
+
+    public override void OnSight(Enemy enemy, PerceptionMark mark)
+    {
+        base.OnSight(enemy, mark);
+        mark.Pause();
+    }
+
+    public override void OnHear(Enemy enemy, PerceptionMark mark)
+    {
+        base.OnHear(enemy, mark);
+        mark.Pause();
     }
 
     public override void OnIn(Enemy enemy)

@@ -7,6 +7,8 @@ using Utils;
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : Character
 {
+    [Header("Movement")]
+    [SerializeField] protected float _autoFacingUpSpeed = 8f;
     [Header("Patrol")]
     [SerializeField] protected List<Transform> _patrolNodes = new();
     [SerializeField] protected bool _randomPatrol = false;
@@ -22,15 +24,15 @@ public class Enemy : Character
     [SerializeField] protected float _chaseMinDistance = 2f;
     [Header("Bounded")]
     [SerializeField] protected float _boundedMaxTime = 15f;
-    [SerializeField] protected ActionZone _exorcismZone;
-    [SerializeField] protected ActionZone _confineZone;
+    [SerializeField] protected ExorcismWeakness _exorcismZone;
+    [SerializeField] protected ConfineWeakness _confineZone;
     protected float _alertTime = 0f;
     protected float _searchTime = 0f;
     protected float _randomMaxIdleTime = 0f;
     protected float _idleTime = 0f;
     protected float _boundedTime = 0f;
     protected Transform _currentNode;
-    protected IUpdateState<Enemy> _state;
+    protected IEnemyState _state;
     protected PerceptionMark _lastHeard;
     public virtual PerceptionMark LastHeard
     {
@@ -47,6 +49,13 @@ public class Enemy : Character
             return _lastSight;
         }
     }
+    protected virtual EnemyState InitialState
+    {
+        get
+        {
+            return Unaware.Instance;
+        }
+    }
 
     protected override void Awake()
     {
@@ -56,7 +65,7 @@ public class Enemy : Character
         {
             _currentNode = _patrolNodes[0];
         }
-        SetState(Unaware.Instance);
+        SetState(InitialState);
     }
 
     protected virtual void Update()
@@ -69,8 +78,6 @@ public class Enemy : Character
         base.FixedUpdate();
         _state.FixedUpdate(this);
     }
-
-
 
     protected virtual void LateUpdate()
     {
@@ -94,8 +101,16 @@ public class Enemy : Character
         {
             return;
         }
-        _state?.OnOut(this);
-        _state = state;
+        IEnemyState previousState = _state;
+        if (previousState != null)
+        {
+            previousState.OnOut(this);
+            _state = previousState.TransitionTo(this, state) as IEnemyState;
+        }
+        else
+        {
+            _state = state;
+        }
         _state.OnIn(this);
     }
 
@@ -105,7 +120,7 @@ public class Enemy : Character
         Patrol();
     }
 
-    protected virtual void Patrol()
+    protected virtual void Patrol(System.Action Move = null)
     {
         if (_patrolNodes.Count == 0)
         {
@@ -139,7 +154,14 @@ public class Enemy : Character
         }
         else
         {
-            Walk();
+            if (Move != null)
+            {
+                Move();
+            }
+            else
+            {
+                Walk();
+            }
         }
     }
 
@@ -182,10 +204,8 @@ public class Enemy : Character
             return false;
         }
         Stay();
-        var heardDirection = _lastHeard.transform.position - transform.position;
-        heardDirection.y = 0;
         
-        transform.LookAt(heardDirection);
+        FaceTo(_lastHeard.transform.position, Time.deltaTime * _autoFacingUpSpeed);
         _alertTime += Time.deltaTime;
         return _alertTime >= _alertHeardMaxTime;
     }
@@ -198,9 +218,7 @@ public class Enemy : Character
             return false;
         }
         Stay();
-        var sightDirection = _lastSight.transform.position - transform.position;
-        sightDirection.y = 0;
-        transform.rotation = Quaternion.LookRotation(sightDirection);
+        FaceTo(_lastSight.transform.position, Time.deltaTime * _autoFacingUpSpeed);
         
         Eyes.transform.LookAt(_lastSight.transform);
         _alertTime += Time.deltaTime;
@@ -250,6 +268,7 @@ public class Enemy : Character
     {
         if (_lastSight.IsDestroyed())
         {
+            Stay();
             return;
         }
         _target = _lastSight.transform;
@@ -267,7 +286,7 @@ public class Enemy : Character
                     transform.forward = player.transform.position - transform.position;
                     if (!player.IsDead)
                     {
-                        _animator.TriggerAction((int)EnemyActionsNames.Attack, ActionsUtils.Noop1);
+                        _animator.TriggerAction((int)EnemyActionsNames.Kill, ActionsUtils.Noop1);
                         player.Killed();
                     }
                 }
@@ -282,11 +301,13 @@ public class Enemy : Character
     public override void OnHear(PerceptionMark mark)
     {
         _lastHeard = mark;
+        _state.OnHear(this, mark);
     }
 
     public override void OnSight(PerceptionMark mark)
     {
         _lastSight = mark;
+        _state.OnSight(this, mark);
     }
 
     public virtual void ActivateWeakness()
@@ -297,6 +318,16 @@ public class Enemy : Character
     public virtual void DeactivateWeakness()
     {
         _confineZone.gameObject.SetActive(false);
+    }
+
+    public virtual void OnAlert()
+    {
+        _lastHeard?.Pause();
+    }
+
+    public virtual void OnAlertEnd()
+    {
+        _lastHeard?.Resume();
     }
 
     public virtual void OnBounded()
@@ -310,6 +341,8 @@ public class Enemy : Character
         _boundedTime = 0f;
         _exorcismZone.Deactivate();
         _confineZone.Activate();
+        _lastSight?.Resume();
+        _lastHeard?.Resume();
     }
     public virtual bool CheckBounded()
     {
@@ -330,5 +363,15 @@ public class Enemy : Character
         Gizmos.color = Color.green;
         Gizmos.DrawLine(transform.position + (Vector3.up * 2), transform.position + _direction + (Vector3.up * 2));
         Gizmos.DrawSphere(transform.position + _direction * 1.5f + (Vector3.up * 2), 0.1f);
+    }
+
+    public virtual IEnemyState TransitionTo(EnemyState enemyState, IEnemyState to)
+    {
+        return to;
+    }
+
+    public virtual void Exorcised()
+    {
+        gameObject.SetActive(false);
     }
 }

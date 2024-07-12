@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utils;
 
 [RequireComponent(typeof(Player))]
@@ -48,11 +50,12 @@ public class PlayerController : MonoBehaviour
     #region Inner Properties
     protected Player _player;
     protected Camera _camera;
-    protected ActionZone _aimedAction;
-    protected ActionZone _engagedAction;
+    protected PlayerAction _aimedAction;
+    protected PlayerAction _engagedAction;
     protected Action StateFixedUpdate = ActionsUtils.Noop;
     protected Action StateUpdate = ActionsUtils.Noop;
     protected Action StateLateUpdate = ActionsUtils.Noop;
+    protected float _actionCheckTime = 0f;
     protected float _verticalRotation = 0f;
     protected float _spineVerticalRotation = 0f;
     protected bool _successAction = false;
@@ -69,7 +72,6 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        StartCoroutine(ActionRoutine());
         ToPlayerControlState();
     }
     protected virtual void FixedUpdate()
@@ -78,6 +80,12 @@ public class PlayerController : MonoBehaviour
     }
     protected virtual void Update()
     {
+        #if !UNITY_EDITOR
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene((int)SceneIndexes.MainMenu);
+        }
+        #endif
         StateUpdate();
     }
 
@@ -136,6 +144,20 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    protected virtual void AimEngagedUpdate()
+    {
+        if (_engagedAction != null)
+        {
+            if (_engagedAction.Active && _engagedAction.CanBeActionatedBy(_player))
+            {
+                UIController.Instance.SetHint(_engagedAction.Hint);
+            }
+            else
+            {
+                UIController.Instance.SetHint(_engagedAction.BlockedHint);
+            }
+        }
+    }
 
     protected virtual void CommandsUpdate()
     {
@@ -144,10 +166,6 @@ public class PlayerController : MonoBehaviour
             _player.ToggleLantern();
         }
 
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Application.Quit();
-        }
     }
 
     protected virtual void MoveFixedUpdate()
@@ -219,12 +237,14 @@ public class PlayerController : MonoBehaviour
             _player.Stay();
             return;
         }
+        ActionCheckFixedUpdate();
         MoveFixedUpdate();
     }
 
     protected virtual void GoingToActionFixedUpdate()
     {
         CrouchingFixedUpdate();
+        AimEngagedUpdate();
         if (!(_engagedAction != null && _engagedAction.CanBeActionatedBy(_player)))
         {
             ToPlayerControlState();
@@ -259,9 +279,9 @@ public class PlayerController : MonoBehaviour
     protected virtual void ActionatingFixedUpdate()
     {
         CrouchingFixedUpdate();
+        AimEngagedUpdate();
         bool canBeActionated = _engagedAction.CanBeActionatedBy(_player);
         if (
-            !_player.Animator.IsActionating ||
             _engagedAction == null ||
             !_engagedAction.Active ||
             (!canBeActionated && !_successAction) ||
@@ -277,11 +297,44 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetAxisRaw(_engagedAction.AxisName.ToString()) == 0 || !_engagedAction.BeeingActionatedBy(_player))
                 {
+                    Debug.Log("ToPlayerControlState");
                     ToPlayerControlState();
                     return;
                 }
             }
         } 
+    }
+
+    protected virtual void ActionCheckFixedUpdate()
+    {
+        if (_player.Eyes.HasActions)
+        {
+            if (_actionCheckTime >= _actionCheckInterval)
+            {
+                Ray actionRay = new(_camera.transform.position, _camera.transform.forward);
+                bool hit = Physics.Raycast(actionRay, out RaycastHit actionHit, _actionDistance, _actionLayers);
+                if (hit
+                    && actionHit.collider.TryGetComponent(out PlayerAction actionZone)
+                    && (_camera.transform.position - actionZone.transform.position).sqrMagnitude < Mathf.Pow(actionZone.SightDistance, 2))
+                {
+                    _aimedAction = actionZone;
+                }
+                else
+                {
+                    UIController.Instance.ClearHint();
+                    _aimedAction = null;
+                }
+                _actionCheckTime = 0;
+            }
+            else
+            {
+                _actionCheckTime += Time.fixedDeltaTime;
+            }
+        }
+        else
+        {
+            _actionCheckTime = 0;
+        }
     }
 
     protected virtual void ActionatingLateUpdate()
@@ -303,6 +356,7 @@ public class PlayerController : MonoBehaviour
                 {
                     return;
                 }
+                _player.FaceTo(_engagedAction.transform.position, Time.deltaTime * _autoFacingUpSpeed);
                 _camera.transform.LookAt(_engagedAction.transform.position);
             };
         }
@@ -310,34 +364,12 @@ public class PlayerController : MonoBehaviour
     #endregion
     #endregion
 
-    #region Routines
-    protected virtual IEnumerator ActionRoutine()
-    {
-        if (_player.Eyes.HasActions)
-        {
-            Ray actionRay = new(_camera.transform.position, _camera.transform.forward);
-            if (Physics.Raycast(actionRay, out RaycastHit actionHit, _actionDistance, _actionLayers)
-                && actionHit.collider.TryGetComponent(out ActionZone actionZone)
-                && (_camera.transform.position - actionZone.transform.position).sqrMagnitude < Mathf.Pow(actionZone.SightDistance, 2))
-            {
-                _aimedAction = actionZone;
-            }
-            else
-            {
-                UIController.Instance.ClearHint();
-                _aimedAction = null;
-            }
-        }
-        yield return new WaitForSeconds(_actionCheckInterval);
-        StartCoroutine(ActionRoutine());
-    }
-    #endregion
-
     #region State Transitions
     protected void ToPlayerControlState()
     {
         _player.Animator.EndAction(true);
         _player.Stay();
+        _aimedAction = null;
         _engagedAction = null;
         _successAction = false;
         _player.SetTarget(null);

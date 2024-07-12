@@ -25,7 +25,6 @@ public class MusicManager : MonoBehaviour
 
     void PlayNextClip()
     {
-        Debug.Log("HOLA"); 
         if (musicClips.Length == 0)
             return;
 

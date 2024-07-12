@@ -52,8 +52,13 @@ namespace Utils
         void OnIn(T reference);
         void OnOut(T reference);
         void Update(T reference);
-
         void FixedUpdate(T reference);
+        IUpdateState<T> TransitionTo(T reference, IUpdateState<T> to);
+    }
+    public interface IEnemyState : IUpdateState<Enemy>
+    {
+        void OnHear(Enemy enemy, PerceptionMark mark);
+        void OnSight(Enemy enemy, PerceptionMark mark);
     }
     #endregion
 
@@ -80,11 +85,12 @@ namespace Utils
         Confine,
         Exorcise,
     }
-
-    public enum EnemyActionsNames
+    public enum EnemyActionsNames : int
     {
         Die = 1,
-        Attack,
+        Kill,
+        Attack1,
+        Attack2
     }
     public enum InputAxesNames
     {

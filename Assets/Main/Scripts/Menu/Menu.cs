@@ -29,6 +29,8 @@ public class Menu : MonoBehaviour
    }
    public void Awake()
    {
+     Cursor.visible = true;
+     Cursor.lockState = CursorLockMode.None;
      PrincipalMenu();
    }
    public void PrincipalMenu()

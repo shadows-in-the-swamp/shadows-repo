@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class Weakness<T> : ActionZone where T : Spell
+public abstract class Weakness<T> : PlayerAction where T : Spell
 {
     [SerializeField] protected Enemy _enemy;
 

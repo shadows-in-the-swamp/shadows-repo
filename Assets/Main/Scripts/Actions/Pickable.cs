@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Pickable : ActionZone
+public class Pickable : PlayerAction
 {
     [SerializeField] protected Item _item;
 

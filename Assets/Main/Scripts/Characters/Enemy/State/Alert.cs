@@ -29,12 +29,12 @@ public class Alert : EnemyState
     public override void OnIn(Enemy enemy)
     {
         base.OnIn(enemy);
-        enemy.LastHeard?.Pause();
+        enemy.OnAlert();
     }
 
     public override void OnOut(Enemy enemy)
     {
         base.OnOut(enemy);
-        enemy.LastHeard?.Resume();
+        enemy.OnAlertEnd();
     }
 }

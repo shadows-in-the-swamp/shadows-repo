@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -7,9 +8,16 @@ using Utils;
 public class Eyes : Sense
 {
     [SerializeField] protected LayerMask _sightLayers;
-    protected List<ActionZone> _actionZones = new();
-    protected List<SightZone> _sightZones = new();
+    protected readonly List<IActionZone> _actionZones = new();
+    protected  List<SightZone> _sightZones = new();
 
+    public virtual List<IActionZone> Actions
+    {
+        get
+        {
+            return new List<IActionZone>(_actionZones);
+        }
+    }
     public virtual bool HasActions
     {
         get
@@ -37,6 +45,25 @@ public class Eyes : Sense
     protected virtual void FixedUpdate()
     {
         SightFixedUpdate();
+    }
+
+    protected override void LateUpdate()
+    {
+        base.LateUpdate();
+        CleanActions();
+    }
+
+    protected virtual void CleanActions()
+    {
+        var actionZones = Actions;
+        foreach (var action in actionZones)
+        {
+            var actionObject = action as MonoBehaviour;
+            if (actionObject.IsDestroyed())
+            {
+                _actionZones.Remove(action);
+            }
+        }
     }
 
     protected virtual void SightFixedUpdate()
@@ -68,7 +95,7 @@ public class Eyes : Sense
                 _sightZones.Add(sightZone);
             }
         }
-        if (other.gameObject.TryGetComponent(out ActionZone actionZone))
+        if (other.gameObject.TryGetComponent(out IActionZone actionZone))
         {
             if (!_actionZones.Contains(actionZone))
             {
@@ -86,7 +113,7 @@ public class Eyes : Sense
                 _sightZones.Remove(sightZone);
             }
         }
-        if (other.gameObject.TryGetComponent(out ActionZone actionZone))
+        if (other.gameObject.TryGetComponent(out IActionZone actionZone))
         {
             if (_actionZones.Contains(actionZone))
             {

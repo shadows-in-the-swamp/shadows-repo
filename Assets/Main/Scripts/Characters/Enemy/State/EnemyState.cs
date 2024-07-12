@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Utils;
 
-public abstract class EnemyState : IUpdateState<Enemy>
+public abstract class EnemyState : IEnemyState
 {
     private static readonly List<EnemyState> _instances = new();
     protected static T Instance<T>() where T : EnemyState, new()
@@ -18,6 +18,16 @@ public abstract class EnemyState : IUpdateState<Enemy>
     protected EnemyState()
     {
 
+    }
+
+    public virtual void OnHear(Enemy enemy, PerceptionMark mark)
+    {
+
+    }
+
+    public virtual void OnSight(Enemy enemy, PerceptionMark mark)
+    {
+        
     }
 
     public virtual void OnIn(Enemy enemy)
@@ -84,4 +94,8 @@ public abstract class EnemyState : IUpdateState<Enemy>
 
     }
 
+    public IUpdateState<Enemy> TransitionTo(Enemy reference, IUpdateState<Enemy> to)
+    {
+        return reference.TransitionTo(this, to as IEnemyState);
+    }
 }

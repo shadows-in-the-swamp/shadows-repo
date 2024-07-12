@@ -1,7 +1,6 @@
 
 using System;
 using UnityEngine;
-using Utils;
 
 [RequireComponent(typeof(ParticleSystem))]
 public class ExorcismWeakness : Weakness<Exorcism>
@@ -59,7 +58,7 @@ public class ExorcismWeakness : Weakness<Exorcism>
         }
         else
         {
-            _enemy.gameObject.SetActive(false);
+            _enemy.Exorcised();
             return false;
         }
     }
