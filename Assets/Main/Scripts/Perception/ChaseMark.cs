@@ -1,9 +1,11 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ChaseMark : PerceptionMark
 {
     [SerializeField] protected float _chaseDuration = 3f;
-    [SerializeField] protected float _chaseTime = 0f;
+    protected float _chaseTime = 0f;
     protected GameObject _origin;
     public virtual GameObject Origin
     {
@@ -21,6 +23,10 @@ public class ChaseMark : PerceptionMark
         }
         else
         {
+            if (_origin.TryGetComponent(out Enemy enemy))
+            {
+                enemy.HideStatus();
+            }
             base.Update();
         }
     }
@@ -33,6 +39,10 @@ public class ChaseMark : PerceptionMark
 
     public override void RefreshPosition(GameObject origin, Transform point = null)
     {
+        if (_origin.TryGetComponent(out Enemy enemy) && !enemy.status.activeSelf)
+        {
+            enemy.ShowStatus();
+        }
         if (_chaseTime < _chaseDuration)
         {
             transform.position = origin.transform.position;
@@ -42,5 +52,17 @@ public class ChaseMark : PerceptionMark
     public override void Initialize(GameObject origin)
     {
         _origin = origin;
+        if (origin.TryGetComponent(out Enemy enemy))
+        {
+            enemy.ShowStatus();
+        }
     }
+
+    protected void OnDestroy() {
+        if (!_origin.IsDestroyed() && _origin.TryGetComponent(out Enemy enemy))
+        {
+            enemy.HideStatus();
+        }
+    }
+
 }

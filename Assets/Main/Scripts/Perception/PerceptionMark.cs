@@ -3,7 +3,7 @@ using UnityEngine;
 public class PerceptionMark : MonoBehaviour
 {
     [SerializeField] protected float _duration = 10f;
-    [SerializeField] protected float _time = 0f;
+    protected float _time = 0f;
     protected bool _paused = false;
 
     protected virtual void Update()

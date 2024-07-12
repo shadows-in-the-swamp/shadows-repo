@@ -59,6 +59,7 @@ public class ExorcismWeakness : Weakness<Exorcism>
         else
         {
             _enemy.Exorcised();
+            _duration = 0;
             return false;
         }
     }

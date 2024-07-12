@@ -9,7 +9,7 @@ public class Eyes : Sense
 {
     [SerializeField] protected LayerMask _sightLayers;
     protected readonly List<IActionZone> _actionZones = new();
-    protected  List<SightZone> _sightZones = new();
+    protected readonly List<SightZone> _sightZones = new();
 
     public virtual List<IActionZone> Actions
     {
@@ -18,6 +18,7 @@ public class Eyes : Sense
             return new List<IActionZone>(_actionZones);
         }
     }
+
     public virtual bool HasActions
     {
         get

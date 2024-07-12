@@ -12,27 +12,11 @@ public abstract class Sense : MonoBehaviour
     protected Dictionary<int,PerceptionMark> _marks = new();
     public event Action<PerceptionMark> OnFirstSense;
     public event Action<PerceptionMark> OnSense;    
-    public PerceptionMark Closer
+    public List<PerceptionMark> Marks
     {
         get
         {
-            PerceptionMark found = null;
-            var marks = _marks.Values;
-            foreach (PerceptionMark mark in marks)
-            {
-                if (!mark.gameObject.activeSelf)
-                {
-                    continue;
-                }
-                found ??= mark;
-                float sqrDistance = (_character.transform.position - found.transform.position).sqrMagnitude;
-                float currentSqrDistance = (_character.transform.position - mark.transform.position).sqrMagnitude;
-                if (currentSqrDistance < sqrDistance)
-                {
-                    found = mark;
-                }
-            }
-            return found;
+            return _marks.Values.ToList();
         }
     }
 

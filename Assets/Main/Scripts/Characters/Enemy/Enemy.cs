@@ -26,6 +26,7 @@ public class Enemy : Character
     [SerializeField] protected float _boundedMaxTime = 15f;
     [SerializeField] protected ExorcismWeakness _exorcismZone;
     [SerializeField] protected ConfineWeakness _confineZone;
+    [SerializeField] public GameObject status;
     protected float _alertTime = 0f;
     protected float _searchTime = 0f;
     protected float _randomMaxIdleTime = 0f;
@@ -373,5 +374,15 @@ public class Enemy : Character
     public virtual void Exorcised()
     {
         gameObject.SetActive(false);
+    }
+
+    internal void ShowStatus()
+    {
+        status.SetActive(true);
+    }
+
+    internal void HideStatus()
+    {
+        status.SetActive(false);
     }
 }

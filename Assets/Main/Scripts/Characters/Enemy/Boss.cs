@@ -94,5 +94,9 @@ public class Boss : Enemy
         {
             base.Exorcised();
         }
+        else
+        {
+            SetState(Enraged.Instance);
+        }
     }
 }
