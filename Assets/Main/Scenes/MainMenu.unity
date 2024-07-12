@@ -1042,15 +1042,14 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Move: To move press the directional keys
+  m_text: 'Move: To move press W, A, S, D.
 
-    Lock: To Lock Press the
-    "E" key
+    Lock: To Lock Press the "E" key
 
-    Exorcize: To Exorcize Press the "E" key
+    Exorcize:
+    To Exorcize Press the "E" key
 
-    Crouch: To Crouch press
-    the "CTRL" key
+    Crouch: To Crouch press the "CTRL" key
 
 
 '
