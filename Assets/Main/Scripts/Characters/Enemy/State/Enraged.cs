@@ -30,4 +30,21 @@ public class Enraged : EnemyState
         base.SightUpdate(enemy);
         enemy.SetState(Aware.Instance);
     }
+
+    public override void OnIn(Enemy enemy)
+    {
+        base.OnIn(enemy);
+        if (enemy is Boss && !(enemy as Boss).CheckEnraged())
+        {
+            (enemy as Boss).OnEnraged();
+        }
+    }
+    public override void OnOut(Enemy enemy)
+    {
+        base.OnIn(enemy);
+        if (enemy is Boss && !(enemy as Boss).CheckEnraged())
+        {
+            (enemy as Boss).OnEnragedEnd();
+        }
+    }
 }

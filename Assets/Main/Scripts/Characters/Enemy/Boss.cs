@@ -10,6 +10,8 @@ public class Boss : Enemy
     [SerializeField] protected float _enrageMaxTime = 15f;
     protected float _enragedTime = 0;
     protected Destroyable _targetToDestroy;
+    protected bool _isAttacking = false;
+    protected bool _attackDone = false;
     // protected override EnemyState InitialState
     // {
     //     get
@@ -31,10 +33,10 @@ public class Boss : Enemy
     {
         if (_targetToDestroy != null && !_targetToDestroy.IsDestroyed())
         {
+            FaceTo(_targetToDestroy.transform.position, Time.deltaTime * _autoFacingUpSpeed);
             if ((_targetToDestroy.transform.position - transform.position).sqrMagnitude < Mathf.Pow(_targetToDestroy.RequiredDistance, 2))
             {
                 Stay();
-                FaceTo(_targetToDestroy.transform.position, Time.deltaTime * _autoFacingUpSpeed);
                 if (!Animator.IsActionating)
                 {
                     void AttackCallback(string eventName)
@@ -56,6 +58,8 @@ public class Boss : Enemy
             }
             else
             {
+                Debug.Log("Run");
+                _target = _targetToDestroy.transform;
                 Run();
             }
         }
@@ -72,6 +76,7 @@ public class Boss : Enemy
             }
             else
             {
+                Debug.Log("Patrol(Run)");
                 Patrol(Run);
             }
         }
@@ -98,5 +103,19 @@ public class Boss : Enemy
         {
             SetState(Enraged.Instance);
         }
+    }
+
+    public virtual void OnEnraged()
+    {
+        _enragedTime = 0f;
+        _targetToDestroy = null;
+        _target = null;
+    }
+
+    internal void OnEnragedEnd()
+    {
+        _enragedTime = 0f;
+        _targetToDestroy = null;
+        _target = null;
     }
 }

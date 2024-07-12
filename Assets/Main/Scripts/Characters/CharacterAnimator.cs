@@ -221,7 +221,16 @@ public class CharacterAnimator : MonoBehaviour
         if (actionIndex > 0)
         {
             EndAction(true);
-            OnActionKeyEvent = Callback ?? ActionsUtils.Noop1;
+            void DoneCallback(string eventName)
+            {
+                switch (eventName)
+                {
+                    case "Done":
+                        _isActionating = false;
+                        break;
+                }
+            }
+            OnActionKeyEvent = Callback + DoneCallback;
             _actionIndex = actionIndex;
             _isActionating = true;
         }

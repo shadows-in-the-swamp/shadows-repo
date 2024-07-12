@@ -343,6 +343,7 @@ GameObject:
   - component: {fileID: 5958970331863559466}
   - component: {fileID: 8546598962917921758}
   - component: {fileID: 2625936888531928433}
+  - component: {fileID: 5940514998083768709}
   m_Layer: 0
   m_Name: crackedOldTree
   m_TagString: Untagged
@@ -419,7 +420,34 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.6432456
+  m_Radius: 0.9494362
   m_Height: 3.13
   m_Direction: 1
   m_Center: {x: 0.07061422, y: 1.1860685, z: -0.009729624}
+--- !u!54 &5940514998083768709
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6812022760827756861}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

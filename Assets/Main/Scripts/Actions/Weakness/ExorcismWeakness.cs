@@ -53,6 +53,7 @@ public class ExorcismWeakness : Weakness<Exorcism>
         bool beeingActionated = _duration < _maxDuration;
         if (beeingActionated)
         {
+            _enemy.FaceTo(player.transform.position, Time.fixedDeltaTime * _enemy._autoFacingUpSpeed);
             _duration += Time.deltaTime;
             return beeingActionated;
         }

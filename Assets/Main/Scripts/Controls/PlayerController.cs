@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utils;
+
 
 [RequireComponent(typeof(Player))]
 public class PlayerController : MonoBehaviour
@@ -76,13 +78,11 @@ public class PlayerController : MonoBehaviour
         StateFixedUpdate();
     }
     protected virtual void Update()
-    {
-        #if !UNITY_EDITOR
+    {                                       
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene((int)SceneIndexes.MainMenu);
         }
-        #endif
         StateUpdate();
     }
 

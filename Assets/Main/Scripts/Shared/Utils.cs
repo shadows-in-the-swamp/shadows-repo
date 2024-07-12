@@ -109,7 +109,8 @@ namespace Utils
         MainMenu,
         Test,
         Chapter1,
-        Loading
+        Loading,
+        Outside
     }
     #endregion
 }

@@ -8,7 +8,7 @@ using Utils;
 public class Enemy : Character
 {
     [Header("Movement")]
-    [SerializeField] protected float _autoFacingUpSpeed = 8f;
+    [SerializeField] public float _autoFacingUpSpeed = 8f;
     [Header("Patrol")]
     [SerializeField] protected List<Transform> _patrolNodes = new();
     [SerializeField] protected bool _randomPatrol = false;
@@ -16,6 +16,7 @@ public class Enemy : Character
     [SerializeField] protected float _patrolMaxIdleTime = 5f;
     [SerializeField] protected float _patrolNodeChangeDistance = 0.1f;
     [Header("States")]
+    [SerializeField] protected string currentState;
     [Header("Alert")]
     [SerializeField] protected float _alertSightMaxTime = 1f;
     [SerializeField] protected float _alertHeardMaxTime = 3f;
@@ -113,6 +114,7 @@ public class Enemy : Character
             _state = state;
         }
         _state.OnIn(this);
+        currentState = _state.GetType().Name;
     }
 
     public virtual void IdleUpdate()
@@ -126,6 +128,10 @@ public class Enemy : Character
         if (_patrolNodes.Count == 0)
         {
             return;
+        }
+        if (_currentNode == null)
+        {
+            _currentNode = NextPatrolNode();
         }
         if (_target != _currentNode)
         {
