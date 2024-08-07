@@ -18,7 +18,7 @@ public class SoundEmitter : MonoBehaviour
     public virtual void Emit(string soundReference, bool child, bool loop, float intensityFactor)
     {
         SoundConfiguration soundConfiguration = GetConfiguration(soundReference);
-        if (soundConfiguration != null)
+        if (soundConfiguration.HasClips)
         {
             Sound sound;
             if (child)
@@ -41,33 +41,41 @@ public class SoundEmitter : MonoBehaviour
                 return sound;
             }
         }
-        return null;
+        return new SoundConfiguration();
     }
 }
 
 [Serializable]
-public class SoundConfiguration
+public struct SoundConfiguration
 {
-    [SerializeField] protected string _reference;
-    public string Reference
+    [SerializeField] string _reference;
+    public readonly string Reference
     {
         get
         {
             return _reference;
         }
     }
-    [SerializeField] protected float _intensity;
-    public float Intensity
+    [SerializeField] float _intensity;
+    public readonly float Intensity
     {
         get
         {
             return _intensity;
         }
     }
-    [SerializeField] protected List<AudioClip> _clips;
+    [SerializeField] List<AudioClip> _clips;
+    public readonly bool HasClips
+    {
+        get
+        {
+            return _clips.Count > 0;
+        }
+    }
 
-    public virtual AudioClip RandomClip()
+    public readonly AudioClip RandomClip()
     {
         return _clips[UnityEngine.Random.Range(0,_clips.Count)];
     }
+
 }
